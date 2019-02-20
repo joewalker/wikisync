@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<style>
+  @import url('https://fonts.googleapis.com/css?lang=en&family=Product+Sans|Roboto:400,700');
+  p {
+    font-family: "Roboto,RobotoDraft,Helvetica,Arial,sans-serif";
+    font-size: 14px;
+  }
+  #markupPreview {
+    width: 280px;
+    height: 300px;
+  }
+  #linkInput {
+    width: 210px;
+  }
+  #linkOutput {
+    text-overflow: ellipsis;
+    display: inline-block;
+    width: 220px;
+    overflow: hidden;
+    white-space: nowrap;
+    vertical-align: bottom;
+  }
+</style>
+
+<p id="errorDisplay" style="display: none">
+</p>
+
+<p>
+  <label>
+    Format:
+    <select
+        id="formatSelect"
+        onchange="changeFormat()"
+        value="<?= format ?>">
+      <option value="html">MDN (HTML)</option>
+      <option value="markdown">Markdown</option>
+      <option value="wikitext">Wikitext (WikiMo)</option>
+    </select>
+  </label>
+</p>
+
+<p>
+  <label for="markupPreview">Markup:</label>
+  <button onclick="changeFormat()">Refresh</button>
+  <button onclick="copyOutput()">Copy</button>
+  <br/>
+  <textarea readonly
+      id="markupPreview"><?= markup ?></textarea>
+</p>
+
+<p>
+  <label>
+    Destination:
+    <br/>
+    <span
+        id="destinationEdit"
+        style="display: none">
+      <textarea
+          id="linkInput"><?= link ?></textarea>
+      <button onclick="destinationSave()">Save</button>
+    </span>
+    <span
+        id="destinationLink">
+      <a id="linkOutput"
+          target="_blank"
+          href="<?= link ?>"><?= link ?></a>
+      <button onclick="showDestinationEdit()">Edit</button>
+    </span>
+  </label>
+</p>
+
+<p id="debug">
+</p>
+
+<script>
+const errorDisplay = document.getElementById('errorDisplay');
+const formatSelect = document.getElementById('formatSelect');
+const markupPreview = document.getElementById('markupPreview');
+const destinationEdit = document.getElementById('destinationEdit');
+const destinationLink = document.getElementById('destinationLink');
+const linkInput = document.getElementById('linkInput');
+const linkOutput = document.getElementById('linkOutput');
+const debug = document.getElementById('debug');
+
+/**
+ * On page load:
+ * - show/hide destinationEdit / destinationLink depending on
+ *   whether we have a link already set
+ * - Set the selected attribute in the right option in the format <select> menu
+ */
+function onLoad() {
+  const initialLink = '<?= link ?>';
+  if (initialLink.trim() === '') {
+    showDestinationEdit();
+  }
+  else {
+    showDestinationLink();
+  }
+
+  const initialFormat = '<?= format ?>';
+  for (const option of [ ...formatSelect.children ]) {
+    if (option.value === initialFormat) {
+      option.selected = true;
+    }
+  }
+}
+window.addEventListener('load', onLoad);
+
+/**
+ * Enable link editing
+ */
+function showDestinationEdit() {
+  destinationEdit.style.display = 'block';
+  destinationLink.style.display = 'none';
+}
+
+/**
+ * Disable link editing and allow link 'clicking'
+ */
+ function showDestinationLink() {
+  destinationEdit.style.display = 'none';
+  destinationLink.style.display = 'block';
+}
+
+/**
+ * Called by the save button to enable the new link
+ */
+function destinationSave() {
+  const link = linkInput.value;
+  linkOutput.href = link;
+  linkOutput.innerText = link;
+
+  showDestinationLink();
+  remoteRun('destinationSave', link).catch(onError);
+}
+
+/**
+ * Error handler which simply makes an error div visible
+ */
+function onError(ex) {
+  errorDisplay.innerHTML = 'Error: ' + ex;
+  errorDisplay.style.display = 'block';
+}
+
+/**
+ * Handler for the format select element
+ */
+function changeFormat() {
+  const format = formatSelect.value;
+  remoteRun('changeFormat', format).then(markup => {
+    markupPreview.textContent = markup;
+  }).catch(onError);
+}
+
+/**
+ * For the 'Copy' button above the markpu preview
+ */
+function copyOutput() {
+  markupPreview.select();
+  document.execCommand('copy');
+}
+
+/**
+ * Utility to call google.script.run using Promises
+ */
+function remoteRun(functionName, ...args) {
+  return new Promise((resolve, reject) => {
+    const runner = google.script.run
+        .withFailureHandler(reject)
+        .withSuccessHandler(resolve);
+    const func = runner[functionName];
+    func(...args);
+  });
+}
+</script>
+
+</body>
+</html>

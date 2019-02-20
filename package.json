@@ -1,0 +1,11 @@
+{
+  "name": "wikisync-addon",
+  "version": "0.0.1",
+  "description": "",
+  "main": "main.js",
+  "dependencies": {
+    "@types/google-apps-script": "0.0.37"
+  },
+  "devDependencies": {},
+  "author": "Joe Walker <jwalker@mozilla.com>"
+}
