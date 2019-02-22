@@ -1,79 +1,95 @@
 <!DOCTYPE html>
 <html>
+<head>
+  <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css?lang=en&family=Product+Sans|Roboto:400,700');
+    .sidebar {
+      font-family: "Roboto,RobotoDraft,Helvetica,Arial,sans-serif";
+      font-size: 14px;
+    }
+    #markupPreview {
+      width: 100%;
+      height: 300px;
+    }
+    #linkInput {
+      width: 100%;
+      margin-bottom: 5px;
+    }
+    #linkOutput {
+      text-overflow: ellipsis;
+      display: inline-block;
+      width: 200px;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    #linkEdit {
+      vertical-align: text-bottom;
+    }
+    .right {
+      text-align: end;
+    }
+    textarea {
+      font-family: 'Courier New', Courier, monospace;
+    }
+  </style>
+</head>
+
 <body>
+<div class="sidebar">
 
-<style>
-  @import url('https://fonts.googleapis.com/css?lang=en&family=Product+Sans|Roboto:400,700');
-  p {
-    font-family: "Roboto,RobotoDraft,Helvetica,Arial,sans-serif";
-    font-size: 14px;
-  }
-  #markupPreview {
-    width: 280px;
-    height: 300px;
-  }
-  #linkInput {
-    width: 210px;
-  }
-  #linkOutput {
-    text-overflow: ellipsis;
-    display: inline-block;
-    width: 220px;
-    overflow: hidden;
-    white-space: nowrap;
-    vertical-align: bottom;
-  }
-</style>
+  <p id="errorDisplay" style="display: none">
+  </p>
 
-<p id="errorDisplay" style="display: none">
-</p>
-
-<p>
-  <label>
-    Format:
+  <div class="block form-group">
+    <label for="formatSelect">Format</label>
     <select
         id="formatSelect"
-        onchange="changeFormat()"
-        value="<?= format ?>">
-      <option value="html">MDN (HTML)</option>
+        onchange="changeFormat()">
+      <option value="html">HTML</option>
       <option value="markdown">Markdown</option>
-      <option value="wikitext">Wikitext (WikiMo)</option>
+      <option value="wikitext">Wikitext</option>
     </select>
-  </label>
-</p>
+  </div>
 
-<p>
-  <label for="markupPreview">Markup:</label>
-  <button onclick="changeFormat()">Refresh</button>
-  <button onclick="copyOutput()">Copy</button>
-  <br/>
-  <textarea readonly
-      id="markupPreview"><?= markup ?></textarea>
-</p>
+  <div class="block form-group">
+    <label for="markupPreview">Markup</label>
+    <textarea readonly
+        id="markupPreview"><?= markup ?></textarea>
+  </div>
 
-<p>
-  <label>
-    Destination:
-    <br/>
-    <span
-        id="destinationEdit"
-        style="display: none">
-      <textarea
-          id="linkInput"><?= link ?></textarea>
+  <div class="block form-group right">
+    <button onclick="changeFormat()">Refresh</button>
+    <button onclick="copyOutput()" class="action">Copy 📋</button>
+  </div>
+
+  <div id="destinationEdit" style="display: none" class="block form-group">
+    <label for="linkInput">Destination</label>
+    <textarea id="linkInput"><?= link ?></textarea>
+    <div class="right">
       <button onclick="destinationSave()">Save</button>
-    </span>
-    <span
-        id="destinationLink">
-      <a id="linkOutput"
-          target="_blank"
-          href="<?= link ?>"><?= link ?></a>
-      <button onclick="showDestinationEdit()">Edit</button>
-    </span>
-  </label>
-</p>
+    </div>
+  </div>
 
-<p id="debug">
-</p>
+  <div id="destinationLink" class="block form-group">
+    <label for="linkOutput">Destination</label>
+    <br/>
+    <a id="linkOutput"
+        target="_blank"
+        href="<?= link ?>"><?= link ?></a>
+    <button id="linkEdit" onclick="showDestinationEdit()">Edit</button>
+  </div>
+
+</div>
+
+<div class="sidebar bottom">
+  <div class="gray">
+    This addon is open source.
+  </div>
+  <div class="secondary">
+    See <a href="https://github.com/joewalker/wikisync">https://github.com/joewalker/wikisync</a> for details.
+  </div>
+</div>
 
 <script>
 const errorDisplay = document.getElementById('errorDisplay');
@@ -83,7 +99,6 @@ const destinationEdit = document.getElementById('destinationEdit');
 const destinationLink = document.getElementById('destinationLink');
 const linkInput = document.getElementById('linkInput');
 const linkOutput = document.getElementById('linkOutput');
-const debug = document.getElementById('debug');
 
 /**
  * On page load:

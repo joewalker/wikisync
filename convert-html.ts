@@ -1,10 +1,11 @@
 
-import { getBodyElements, BodyElement, getIndent } from './util';
+import { getBodyElements, BodyElement, getIndent, getNestedText, NestedText } from './util';
 import { stringRepeat } from './polyfill';
 
 import Document = GoogleAppsScript.Document.Document;
 import ListItem = GoogleAppsScript.Document.ListItem;
 import Paragraph = GoogleAppsScript.Document.Paragraph;
+import Text = GoogleAppsScript.Document.Text;
 
 const { ElementType, ParagraphHeading } = DocumentApp;
 
@@ -49,7 +50,7 @@ export function listItemsToHTML(listItems: Array<ListItem>): string {
   return `${listIndent}<ul>\n` + listItems.map(item => {
     return Array.isArray(item) ?
             listItemsToHTML(item as Array<ListItem>) + '\n' :
-            `${getIndent(item)}  <li>${item.getText()}</li>\n`;
+            `${getIndent(item)}  <li>${blockToHTML(item)}</li>\n`;
   }).join('') + `${listIndent}</ul>`;
 }
 
@@ -65,8 +66,68 @@ const htmlTags = {
   [ParagraphHeading.SUBTITLE]: { open: '<div class="subtitle">', close: '</div>\n' },
 };
 
+/**
+ *
+ */
 export function paragraphToHTML(para: Paragraph): string {
   const headingLevel = para.getHeading();
   const lookup = htmlTags[headingLevel];
-  return `${lookup.open}${para.getText()}${lookup.close}`;
+  return `${lookup.open}${blockToHTML(para)}${lookup.close}`;
+}
+
+/**
+ * 
+ */
+export function blockToHTML(block: Paragraph | ListItem): string {
+  const allText: string[] = [];
+  for (let i = 0; i < block.getNumChildren(); i++) {
+    const child = block.getChild(i);
+    switch (child.getType()) {
+      case ElementType.TEXT:
+        const nestedText = getNestedText(child as unknown as Text);
+        return nestedTextToHTML(nestedText);
+
+      case ElementType.HORIZONTAL_RULE:
+      case ElementType.PAGE_BREAK:
+        return '<hr/>';
+
+      default:
+      return `Elements of type ${child.getType()} are not supported`;
+    }
+  }
+  return allText.join('');
+}
+
+
+/**
+ *
+ */
+export function nestedTextToHTML(source: NestedText): string {
+  const output = [];
+  for (const child of source.children) {
+    const part = (typeof child === 'string') ?
+            child :
+            nestedTextToHTML(child);
+
+    output.push(part);
+  }
+
+  const unstyled = output.join('');
+  if (source.attributes == null) {
+    return unstyled;
+  }
+
+  if (typeof source.attributes.link === 'string') {
+    return `<a href="${source.attributes.link}">${unstyled}]</a>`;
+  }
+  if (source.attributes.weight > 400) {
+    return `<b>${unstyled}</b>`;
+  }
+  if (source.attributes.italics) {
+    return `<i>${unstyled}</i>`;
+  }
+  if (source.attributes.strike) {
+    return `<strike>${unstyled}</strike>`;
+  }
+  return unstyled;
 }

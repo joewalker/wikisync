@@ -1,9 +1,10 @@
 
-import { getBodyElements, BodyElement, getIndent } from './util';
+import { getBodyElements, BodyElement, getIndent, getNestedText, NestedText } from './util';
 
 import Document = GoogleAppsScript.Document.Document;
 import ListItem = GoogleAppsScript.Document.ListItem;
 import Paragraph = GoogleAppsScript.Document.Paragraph;
+import Text = GoogleAppsScript.Document.Text;
 
 const { ElementType, ParagraphHeading } = DocumentApp;
 
@@ -40,11 +41,14 @@ export function elementToMarkdown(element: BodyElement): string {
   }
 }
 
+/**
+ *
+ */
 export function listItemsToMarkdown(listItems: Array<ListItem>): string {
   return listItems.map(item => {
     return Array.isArray(item) ?
             listItemsToMarkdown(item as Array<ListItem>) :
-            `${getIndent(item)}* ${item.getText()}\n`;
+            `${getIndent(item)}* ${blockToMarkdown(item)}\n`;
   }).join('');
 }
 
@@ -60,8 +64,68 @@ const markdownTags: { [tag: string]: (text: string) => string } = {
   [ParagraphHeading.SUBTITLE]: text => `${text}\n${text.replace(/./g, '-')}\n`,
 };
 
+/**
+ *
+ */
 export function paragraphToMarkdown(para: Paragraph): string {
   const headingLevel = para.getHeading();
   const lookup = markdownTags[headingLevel];
-  return lookup(para.getText());
+  return lookup(blockToMarkdown(para));
+}
+
+/**
+ * 
+ */
+export function blockToMarkdown(block: Paragraph | ListItem): string {
+  const allText: string[] = [];
+  for (let i = 0; i < block.getNumChildren(); i++) {
+    const child = block.getChild(i);
+    switch (child.getType()) {
+      case ElementType.TEXT:
+        const nestedText = getNestedText(child as unknown as Text);
+        return nestedTextToMarkdown(nestedText);
+
+      case ElementType.HORIZONTAL_RULE:
+      case ElementType.PAGE_BREAK:
+        return '\n\n';
+
+      default:
+      return `Elements of type ${child.getType()} are not supported`;
+    }
+  }
+  return allText.join('');
+}
+
+
+/**
+ *
+ */
+export function nestedTextToMarkdown(source: NestedText): string {
+  const output = [];
+  for (const child of source.children) {
+    const part = (typeof child === 'string') ?
+            child :
+            nestedTextToMarkdown(child);
+
+    output.push(part);
+  }
+
+  const unstyled = output.join('');
+  if (source.attributes == null) {
+    return unstyled;
+  }
+
+  if (typeof source.attributes.link === 'string') {
+    return `[${unstyled}](${source.attributes.link})`;
+  }
+  if (source.attributes.weight > 400) {
+    return `**${unstyled}**`;
+  }
+  if (source.attributes.italics) {
+    return `*${unstyled}*`;
+  }
+  if (source.attributes.strike) {
+    return `~~${unstyled}~~`;
+  }
+  return unstyled;
 }

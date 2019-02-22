@@ -50,3 +50,14 @@ export function stringRepeat(str: string, count: number) {
   str += str.substring(0, maxCount - str.length);
   return str;
 }
+
+/**
+ * You should be able to [ ... '' ] however GAppsScript...
+ */
+export function toStringArray(str: string): string[] {
+  const reply: string[] = [];
+  for (let i = 0; i < str.length; i++) {
+    reply.push(str.charAt(i));
+  }
+  return reply;
+}
