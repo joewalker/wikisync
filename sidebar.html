@@ -48,7 +48,6 @@
         onchange="changeFormat()">
       <option value="html">HTML</option>
       <option value="markdown">Markdown</option>
-      <option value="wikitext">Wikitext</option>
     </select>
   </div>
 
@@ -63,16 +62,21 @@
     <button onclick="copyOutput()" class="action">Copy 📋</button>
   </div>
 
+  <hr style="margin: 20px 0"/>
+
   <div id="destinationEdit" style="display: none" class="block form-group">
-    <label for="linkInput">Destination</label>
-    <textarea id="linkInput"><?= link ?></textarea>
-    <div class="right">
+    <label for="linkInput">Destination Bookmark</label>
+    <textarea id="linkInput" placeholder="https://wiki.example.com/mypage"><?= link ?></textarea>
+    <div style="display: inline-block; width: 200px; vertical-align: top" class="secondary gray">
+      Save a link to published document for easy future access.
+    </div>
+    <div style="display: inline-block">
       <button onclick="destinationSave()">Save</button>
     </div>
   </div>
 
   <div id="destinationLink" class="block form-group">
-    <label for="linkOutput">Destination</label>
+    <label for="linkOutput">Destination Bookmark</label>
     <br/>
     <a id="linkOutput"
         target="_blank"
@@ -140,6 +144,10 @@ function showDestinationEdit() {
  function showDestinationLink() {
   destinationEdit.style.display = 'none';
   destinationLink.style.display = 'block';
+
+  if (linkInput.value.trim() == '') {
+    linkOutput.innerText = 'No link saved';
+  }
 }
 
 /**
