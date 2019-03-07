@@ -13,9 +13,16 @@ const convert: { [key: string]: (doc: Document) => string } = {
 };
 
 /**
+ * Called when this addon is initially installed in a document
+ */
+export function onInstall(ev: Event): void {
+  onOpen(ev);
+}
+
+/**
  * 'Main' function that adds menu items to the Addons menu
  */
-export function onOpen(): void {
+export function onOpen(ev: Event): void {
   const ui = DocumentApp.getUi();
   ui.createAddonMenu()
       .addItem('Sync Now', syncToWikiMo.name)
