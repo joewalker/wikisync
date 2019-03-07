@@ -4,7 +4,7 @@
   "description": "",
   "main": "main.js",
   "dependencies": {
-    "@types/google-apps-script": "0.0.37"
+    "@types/google-apps-script": "0.0.38"
   },
   "devDependencies": {},
   "author": "Joe Walker <jwalker@mozilla.com>"
