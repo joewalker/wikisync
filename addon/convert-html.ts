@@ -9,6 +9,9 @@ import Text = GoogleAppsScript.Document.Text;
 
 const { ElementType, ParagraphHeading } = DocumentApp;
 
+/**
+ * Convert a GDoc document to HTML
+ */
 export function documentToHTML(document: Document): string {
   const body = document.getBody();
 

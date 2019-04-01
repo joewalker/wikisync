@@ -7,7 +7,13 @@ Google Docs is great for collaboration and basic formatting, but a poor choice f
 
 This add-on makes it easy to extract Markdown or simple HTML from a Google Document.
 
-Links:
+## Getting Started
+
+Open a Google Doc from which to extract markup. From the "Add-ons" menu select "Get add-ons ...", then search for "WikiSync".
+
+One installed, to use the addon, under the "Add-ons" menu select "Wiki Sync" and then "Sync Now". You should then be able to select the flavour of markup (HTML / Markdown) and copy the text for a more permanent location.
+
+## Links
 
 * [Home Page](https://wiki.mozilla.org/WikiSync)
 * [Source](https://github.com/joewalker/wikisync)
