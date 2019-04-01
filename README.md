@@ -11,4 +11,4 @@ Links:
 
 * [Home Page](https://wiki.mozilla.org/WikiSync)
 * [Source](https://github.com/joewalker/wikisync)
-* [Terms of Service](https://wiki.mozilla.org/WikiSync/TermsOfService) (Required by GSuite)
+* License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)
