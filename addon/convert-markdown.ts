@@ -1,5 +1,7 @@
 
-import { getBodyElements, BodyElement, getIndent, getNestedText, NestedText } from './util';
+import {
+  BodyElement, getBodyElements, getIndent, getNestedText, NestedText,
+} from './util';
 
 import Document = GoogleAppsScript.Document.Document;
 import ListItem = GoogleAppsScript.Document.ListItem;
@@ -74,7 +76,7 @@ export function paragraphToMarkdown(para: Paragraph): string {
 }
 
 /**
- * 
+ *
  */
 export function blockToMarkdown(block: Paragraph | ListItem): string {
   const allText: string[] = [];
@@ -83,19 +85,21 @@ export function blockToMarkdown(block: Paragraph | ListItem): string {
     switch (child.getType()) {
       case ElementType.TEXT:
         const nestedText = getNestedText(child as unknown as Text);
-        return nestedTextToMarkdown(nestedText);
+        allText.push(nestedTextToMarkdown(nestedText));
+        break;
 
       case ElementType.HORIZONTAL_RULE:
       case ElementType.PAGE_BREAK:
-        return '\n\n';
+        allText.push('\n\n');
+        break;
 
       default:
-      return `Elements of type ${child.getType()} are not supported`;
+        allText.push(`Elements of type ${child.getType()} are not supported`);
+        break;
     }
   }
   return allText.join('');
 }
-
 
 /**
  *
